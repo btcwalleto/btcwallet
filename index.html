@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -16,7 +15,7 @@ header{padding:20px 16px;background:#18221b;border-bottom:1px solid #2b3a30}
 .wrap{max-width:520px;margin:auto;padding:16px}
 .card{background:var(--card);border:1px solid #2b3b30;border-radius:18px;padding:18px;margin-bottom:15px}
 .price{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--green);margin-left:7px;animation:blink 1s infinite}
+.dot{display:inline-block;width:9px;height:9px;flex-shrink:0;border-radius:50%;background:var(--green);margin-left:7px;animation:blink 1s infinite}
 @keyframes blink{50%{opacity:.2;box-shadow:0 0 12px var(--green)}}
 .big{font-size:27px;font-weight:bold;direction:ltr;text-align:right;margin-top:10px}
 small,.muted{color:var(--muted)}
@@ -28,7 +27,6 @@ input:focus{border-color:var(--green)}
 button{border:0;border-radius:10px;padding:13px;cursor:pointer;font-weight:bold}
 .primary{background:var(--green);color:#092014}
 .secondary{background:#29382d;color:#fff}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
 .full{width:100%;margin-top:12px}
 .usd{color:var(--green);font-size:15px;margin-top:10px}
 .address{overflow-wrap:anywhere;direction:ltr;text-align:left;background:#101813;padding:12px;border-radius:9px;font-size:13px}
@@ -39,6 +37,11 @@ button{border:0;border-radius:10px;padding:13px;cursor:pointer;font-weight:bold}
 .hidden{display:none!important}
 .note{font-size:12px;line-height:1.8;color:var(--muted)}
 #message{margin-top:12px;font-size:13px;color:var(--green)}
+.balance-card{border-color:#236344}
+.balance-number{font-size:clamp(25px,7vw,35px);font-weight:900;color:var(--green);direction:ltr;text-align:center;overflow-wrap:anywhere;margin:22px 0 8px}
+.balance-usd{font-size:20px;font-weight:bold;text-align:center;direction:ltr;margin-bottom:18px}
+.balance-label{display:flex;align-items:center;justify-content:center;gap:7px;color:#eafff1}
+.balance-status{text-align:center;font-size:12px;color:var(--muted);margin-top:8px}
 footer{text-align:center;color:#708276;font-size:11px;padding:10px 0 25px}
 </style>
 </head>
@@ -53,7 +56,7 @@ footer{text-align:center;color:#708276;font-size:11px;padding:10px 0 25px}
 <main class="wrap">
   <section id="auth" class="card">
     <h3>ورود به کیف پول</h3>
-    <p class="note">برای ساخت حساب، نام کاربری و رمز عبور را وارد کن.</p>
+    <p class="note">نام کاربری و رمز عبور را وارد کن.</p>
     <label>نام کاربری</label>
     <input id="username" autocomplete="username" placeholder="Username" maxlength="32">
     <label>رمز عبور</label>
@@ -83,18 +86,32 @@ footer{text-align:center;color:#708276;font-size:11px;padding:10px 0 25px}
       </div>
       <p class="muted">شناسه ثابت کاربر</p>
       <div class="row">
-        <b id="userId" style="direction:ltr"></b>
+        <b id="userId" style="direction:ltr;overflow-wrap:anywhere"></b>
         <button class="secondary" onclick="copyText(currentUserId)">کپی</button>
       </div>
-      <p class="note".</p>
     </div>
 
-    <div class="card">
-      <h3>دریافت بیت‌کوین</h3>
-      <p class="muted">آدرس ثابت دریافت BTC</p>
-      <div class="address" id="receiveAddress"></div>
-      <button class="primary full" onclick="copyText(RECEIVE_ADDRESS)">کپی آدرس دریافت</button>
-      <p class="note">قبل از واریز، شبکه Bitcoin. این آدرس ثابت است.</p>
+    <!-- کارت موجودی کاربر -->
+    <div class="card balance-card">
+      <div class="balance-label">
+        <span class="dot"></span>
+        <b>موجودی بیت‌کوین شما</b>
+      </div>
+
+      <div class="balance-number" id="btcBalance">0.00000000 BTC</div>
+      <div class="balance-usd" id="usdBalance">$0.00 USD</div>
+
+      <div class="balance-status" id="balanceStatus">
+        در انتظار اتصال به سامانه موجودی
+      </div>
+
+      <div style="border-top:1px solid #344238;margin-top:18px;padding-top:18px">
+        <h3>آدرس دریافت بیت‌کوین</h3>
+        <p class="muted">آدرس ثابت دریافت BTC</p>
+        <div class="address" id="receiveAddress"></div>
+        <button class="primary full" onclick="copyText(RECEIVE_ADDRESS)">کپی آدرس دریافت</button>
+        <p class="note">فقط شبکه Bitcoin را استفاده کن. این آدرس بین کاربران مشترک است.</p>
+      </div>
     </div>
 
     <div class="card">
@@ -104,7 +121,7 @@ footer{text-align:center;color:#708276;font-size:11px;padding:10px 0 25px}
       <label>مقدار برداشت (BTC)</label>
       <input id="amount" type="number" min="0" step="0.00000001" placeholder="0.00000000" oninput="calculateUSD()">
       <div class="usd" id="usdValue">معادل دلاری: $0.00</div>
-      <p class="note">معادل دلار تقریبی و بر اساس آخرین قیمت دریافت‌شده است. کارمزد شبکه محاسبه نشده است.</p>
+      <p class="note">معادل دلار تقریبی است. ثبت درخواست به معنای ارسال بیت‌کوین نیست.</p>
       <button class="primary full" onclick="requestWithdrawal()">ثبت درخواست برداشت</button>
       <div id="withdrawMessage" class="note"></div>
     </div>
@@ -114,6 +131,7 @@ footer{text-align:center;color:#708276;font-size:11px;padding:10px 0 25px}
       <div id="transactions"><p class="note">هنوز درخواستی ثبت نشده است.</p></div>
     </div>
   </section>
+
   <footer>BTCWALLETO · قیمت‌ها تقریبی‌اند و ممکن است تغییر کنند.</footer>
 </main>
 
@@ -124,13 +142,22 @@ const RECEIVE_ADDRESS = "1Q99GpYnEU9yELNLjiJUWopNT1HatRYQrV";
 const USERS_KEY = "btcwalleto_users_v1";
 const SESSION_KEY = "btcwalleto_session_v1";
 
+
+*/
+const BALANCE_API_URL = "";
+
 let currentUserId = "";
 let currentUsername = "";
 let btcPrice = 0;
+let confirmedBalanceBTC = 0;
+let balanceRequestNumber = 0;
 
 function getUsers() {
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); }
-  catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+  } catch {
+    return {};
+  }
 }
 
 function saveUsers(users) {
@@ -168,7 +195,10 @@ async function register() {
 
   const users = getUsers();
   const key = username.toLowerCase();
-  if (users[key]) return say("message", "این نام کاربری قبلاً ثبت شده است.");
+
+  if (users[key]) {
+    return say("message", "این نام کاربری قبلاً ثبت شده است.");
+  }
 
   users[key] = {
     username,
@@ -190,7 +220,10 @@ async function login() {
   const key = username.toLowerCase();
   const users = getUsers();
 
-  if (!users[key]) return say("message", "حساب پیدا نشد؛ ابتدا حساب بساز.");
+  if (!users[key]) {
+    return say("message", "حساب پیدا نشد؛ ابتدا حساب بساز.");
+  }
+
   if (users[key].passwordHash !== await hashPassword(password)) {
     return say("message", "نام کاربری یا رمز عبور اشتباه است.");
   }
@@ -206,23 +239,98 @@ function showWallet() {
   if (!users[currentUsername]) return logout();
 
   currentUserId = users[currentUsername].id;
+
   document.getElementById("auth").classList.add("hidden");
   document.getElementById("wallet").classList.remove("hidden");
+
   say("userId", currentUserId);
   document.getElementById("receiveAddress").textContent = RECEIVE_ADDRESS;
+
+  //
+  confirmedBalanceBTC = 0;
+  renderBalance();
+  loadRealBalance();
+
   renderTransactions();
   updatePrice();
   calculateUSD();
 }
 
 function logout() {
+  balanceRequestNumber++;
   localStorage.removeItem(SESSION_KEY);
   currentUsername = "";
   currentUserId = "";
+  confirmedBalanceBTC = 0;
+
   document.getElementById("wallet").classList.add("hidden");
   document.getElementById("auth").classList.remove("hidden");
   document.getElementById("password").value = "";
+
+  renderBalance();
   say("message", "از حساب خارج شدی.");
+}
+
+function renderBalance() {
+  document.getElementById("btcBalance").textContent =
+    confirmedBalanceBTC.toFixed(8) + " BTC";
+
+  const usd = btcPrice > 0 ? confirmedBalanceBTC * btcPrice : 0;
+
+  document.getElementById("usdBalance").textContent =
+    "$" + usd.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) + " USD";
+}
+
+/*
+  این تابع فقط از API سرور قابل اعتماد، موجودی می‌گیرد.
+  موجودی را از مقدار واردشده توسط کاربر یا localStorage
+  استخراج نمی‌کند.
+*/
+async function loadRealBalance() {
+  const requestId = ++balanceRequestNumber;
+
+  if (!BALANCE_API_URL) {
+    confirmedBalanceBTC = 0;
+    renderBalance();
+    say("balanceStatus", "موجودی واقعی هنوز به سرور متصل نشده است.");
+    return;
+  }
+
+  try {
+    say("balanceStatus", "در حال بررسی موجودی تأییدشده...");
+
+    const response = await fetch(BALANCE_API_URL, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+      headers: { "Accept": "application/json" }
+    });
+
+    if (!response.ok) throw new Error("Balance service unavailable");
+
+    const data = await response.json();
+
+    // جلوگیری از نمایش پاسخ دیررس برای حساب قبلی
+    if (requestId !== balanceRequestNumber || !currentUsername) return;
+
+    const balance = Number(data.confirmedBalanceBTC);
+
+    if (!Number.isFinite(balance) || balance < 0) {
+      throw new Error("Invalid balance");
+    }
+
+    confirmedBalanceBTC = balance;
+    renderBalance();
+    say("balanceStatus", "موجودی تأییدشده از سرور دریافت شد.");
+  } catch {
+    if (requestId !== balanceRequestNumber) return;
+    confirmedBalanceBTC = 0;
+    renderBalance();
+    say("balanceStatus", "اتصال موجودی ناموفق بود؛ موجودی واقعی تأیید نشد.");
+  }
 }
 
 async function updatePrice() {
@@ -231,21 +339,29 @@ async function updatePrice() {
       "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
       { cache: "no-store" }
     );
+
     if (!response.ok) throw new Error("Price unavailable");
+
     const data = await response.json();
+
     if (!data.bitcoin || typeof data.bitcoin.usd !== "number") {
       throw new Error("Invalid price");
     }
 
     btcPrice = data.bitcoin.usd;
+
     document.getElementById("btcPrice").textContent =
       "$" + btcPrice.toLocaleString("en-US", {
-        minimumFractionDigits: 2, maximumFractionDigits: 2
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       });
+
     say("priceStatus", "آخرین به‌روزرسانی: " +
       new Date().toLocaleTimeString());
+
     calculateUSD();
-  } catch (error) {
+    renderBalance();
+  } catch {
     say("priceStatus", "قیمت آنلاین در دسترس نیست؛ دوباره تلاش می‌شود.");
   }
 }
@@ -254,9 +370,11 @@ function calculateUSD() {
   const amount = Number(document.getElementById("amount").value);
   const usd = Number.isFinite(amount) && amount > 0 && btcPrice > 0
     ? amount * btcPrice : 0;
+
   document.getElementById("usdValue").textContent =
     "معادل دلاری: $" + usd.toLocaleString("en-US", {
-      minimumFractionDigits: 2, maximumFractionDigits: 2
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
 }
 
@@ -266,12 +384,15 @@ function requestWithdrawal() {
 
   if (!currentUsername) return;
   if (!destination) return say("withdrawMessage", "آدرس مقصد را وارد کن.");
+
   if (!/^(bc1[ac-hj-np-z02-9]{11,71}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(destination)) {
     return say("withdrawMessage", "فرمت آدرس بیت‌کوین معتبر به نظر نمی‌رسد.");
   }
+
   if (!Number.isFinite(amount) || amount <= 0 || amount >= 21000000) {
     return say("withdrawMessage", "مقدار BTC معتبر وارد کن.");
   }
+
   if (btcPrice <= 0) {
     return say("withdrawMessage", "ابتدا قیمت آنلاین دریافت شود.");
   }
@@ -294,7 +415,10 @@ function requestWithdrawal() {
   document.getElementById("destination").value = "";
   document.getElementById("amount").value = "";
   calculateUSD();
-  say("withdrawMessage", "درخواست در همین مرورگر ثبت شد؛ بیت‌کوین ارسال نشده است.");
+
+  say("withdrawMessage",
+    "درخواست در همین مرورگر ثبت شد؛ بیت‌کوین ارسال نشده است.");
+
   renderTransactions();
 }
 
@@ -302,29 +426,38 @@ function renderTransactions() {
   const users = getUsers();
   const user = users[currentUsername];
   const container = document.getElementById("transactions");
+
+  container.replaceChildren();
+
   if (!user || !user.transactions.length) {
-    container.innerHTML = '<p class="note">هنوز درخواستی ثبت نشده است.</p>';
+    const empty = document.createElement("p");
+    empty.className = "note";
+    empty.textContent = "هنوز درخواستی ثبت نشده است.";
+    container.append(empty);
     return;
   }
 
-  container.replaceChildren();
   user.transactions.forEach(tx => {
     const item = document.createElement("div");
     item.className = "tx";
 
     const top = document.createElement("div");
     top.className = "row";
+
     const type = document.createElement("b");
     type.textContent = tx.type;
+
     const status = document.createElement("span");
     status.className = "status";
     status.textContent = tx.status;
+
     top.append(type, status);
 
     const amount = document.createElement("p");
     amount.textContent = Number(tx.amount).toFixed(8) + " BTC ≈ $" +
       Number(tx.usd).toLocaleString("en-US", {
-        minimumFractionDigits: 2, maximumFractionDigits: 2
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       });
 
     const address = document.createElement("p");
@@ -351,13 +484,16 @@ async function copyText(text) {
     area.select();
     const ok = document.execCommand("copy");
     area.remove();
-    say("withdrawMessage", ok ? "کپی شد." : "کپی انجام نشد؛ آدرس را دستی کپی کن.");
+
+    say("withdrawMessage",
+      ok ? "کپی شد." : "کپی نشد؛ آدرس را دستی کپی کن.");
   }
 }
 
 document.getElementById("receiveAddress").textContent = RECEIVE_ADDRESS;
 
 const existingSession = localStorage.getItem(SESSION_KEY);
+
 if (existingSession && getUsers()[existingSession]) {
   currentUsername = existingSession;
   currentUserId = getUsers()[existingSession].id;
@@ -366,6 +502,11 @@ if (existingSession && getUsers()[existingSession]) {
 
 updatePrice();
 setInterval(updatePrice, 60000);
+
+// بررسی مجدد موجودی هر ۶۰ ثانیه، فقط پس از اتصال API
+setInterval(() => {
+  if (currentUsername && BALANCE_API_URL) loadRealBalance();
+}, 60000);
 </script>
 </body>
-    </html>
+        </html>
