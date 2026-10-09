@@ -507,6 +507,40 @@ setInterval(updatePrice, 60000);
 setInterval(() => {
   if (currentUsername && BALANCE_API_URL) loadRealBalance();
 }, 60000);
-</script>
+</script><script>
+(function () {
+  // سازگاری ورود و ثبت‌نام در مرورگرهای مختلف
+  async function compatibleHash(password) {
+    if (window.crypto && window.crypto.subtle) {
+      const data = new TextEncoder().encode(password);
+      const result = await window.crypto.subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(result))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
+
+    // روش جایگزین برای اجرای آزمایشی روی بعضی مرورگرها
+    let hash = 2166136261;
+    for (let i = 0; i < password.length; i++) {
+      hash ^= password.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return "local-" + (hash >>> 0).toString(16);
+  }
+
+  // در صورت خطا، پیام قابل مشاهده نشان بده
+  window.addEventListener("error", function (event) {
+    console.error("Wallet error:", event.message);
+  });
+
+  window.addEventListener("unhandledrejection", function (event) {
+    console.error("Wallet login error:", event.reason);
+    alert("خطا در ورود یا ثبت‌نام. صفحه را تازه‌سازی کن و دوباره تلاش کن.");
+  });
+
+  // برای استفاده در توابع ورود و ثبت‌نام
+  window.compatibleHash = compatibleHash;
+})();
+    </script>
 </body>
         </html>
